@@ -1,0 +1,22 @@
+# macOS metadata
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+.fseventsd
+
+# Windows metadata
+Thumbs.db
+Desktop.ini
+
+# Linux desktop trash and filesystem recovery
+.Trash-*/
+lost+found/
+.directory
+.nfs*
+
+# Editor temporary and backup files
+*.swp
+*.swo
+*~
+.~lock.*#

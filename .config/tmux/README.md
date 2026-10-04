@@ -47,6 +47,8 @@ The script reads only the current branch, without scanning the working tree for 
 Slash-separated branch prefixes are abbreviated to their initials; the final component stays intact.
 With a detached HEAD, it shows `detached:` followed by the short commit ID.
 
+The right segment adapts to each terminal's width, reserving 30 columns for window labels after the session label. When necessary, it trims Git/path text from the left with an ellipsis, keeping the clock and date visible. With less space it shows only the clock, or hides entirely.
+
 `tmux.conf` invokes `status.sh` through `#(...)`, which displays the rendered Git/path segment from the script's standard output.
 
 Window labels use tmux's automatic renaming and show the current directory/app.
@@ -56,7 +58,7 @@ Window labels use tmux's automatic renaming and show the current directory/app.
 - Click a pane or a window in the status bar to select it; drag a pane border to resize it. Scroll up to browse the pane's history.
 - Drag to select text. Releasing the mouse copies it to the **clipboard** through `pbcopy`, keeps the highlight, and stays in copy mode.
 - The top-right indicator shows the scroll position and history size.
-- A single click while in copy mode clears the selection and keeps copy mode open.
+- A single click while in copy mode focuses that pane, clears its selection, and keeps copy mode open.
 - Press `q` without the prefix to exit copy mode.
 - Paste with the terminal's **Cmd+V**, or use **Ctrl+Space, `]`** for the latest tmux buffer.
 

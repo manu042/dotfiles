@@ -24,25 +24,12 @@ shorten_path() {
 }
 
 git_status() {
-    local path=$1 record branch= oid= dirty= prefix= part
-    # NUL-delimited porcelain v2 handles unusual filenames and includes branch
-    # metadata in the same snapshot. Disable optional locks for status polling.
-    while IFS= read -r -d '' record; do
-        case $record in
-            '# branch.head '*) branch=${record#\# branch.head } ;;
-            '# branch.oid '*) oid=${record#\# branch.oid } ;;
-            '1 '*|'? '*|'u '*) dirty='*' ;;
-            '2 '*)
-                dirty='*'
-                # Renames include a separate NUL-delimited original filename.
-                IFS= read -r -d '' record
-                ;;
-        esac
-    done < <(GIT_OPTIONAL_LOCKS=0 git -C "$path" status --porcelain=v2 --branch -z 2>/dev/null)
+    local path=$1 branch= oid= prefix= part
     REPLY=
-    # Missing branch metadata (including outside a repository) hides this segment.
-    [[ -n $branch ]] || return 0
-    if [[ $branch == '(detached)' ]]; then
+    # Read HEAD without scanning the working tree or index.
+    if ! branch=$(git -C "$path" symbolic-ref --quiet --short HEAD 2>/dev/null); then
+        # Detached HEAD shows the commit; outside a repository hides the segment.
+        oid=$(git -C "$path" rev-parse --verify --short=7 HEAD 2>/dev/null) || return 0
         branch="detached:${oid:0:7}"
     else
         # Keep the final branch component intact; shorten any slash-separated prefix.
@@ -53,7 +40,7 @@ git_status() {
         done
         branch="$prefix$branch"
     fi
-    printf -v REPLY '‹%s%s›' "$branch" "$dirty"
+    printf -v REPLY '‹%s›' "$branch"
 }
 
 escape() {
@@ -80,13 +67,21 @@ render() {
     printf '#[fg=#c0caf5,bg=#414868] %s \n' "$display_path"
 }
 
-# Allow sourcing helpers without querying tmux or rendering a status line.
+update() {
+    local pane=$1 current_path=${2-}
+    if [[ -z $current_path ]]; then
+        current_path=$(tmux display-message -p -t "$pane" '#{pane_current_path}' 2>/dev/null) || return 0
+    fi
+    [[ -n $current_path ]] || return 0
+    # tmux's #(...) status command displays the last line of standard output.
+    render "$current_path"
+}
+
+# Allow sourcing helpers without querying tmux or printing the status line.
 if [[ ${BASH_SOURCE[0]} == "$0" ]]; then
-    if (( $# != 1 )); then
-        printf 'Usage: status.sh PANE_ID\n' >&2
+    if (( $# < 1 || $# > 2 )); then
+        printf 'Usage: status.sh PANE_ID [CURRENT_PATH]\n' >&2
         exit 1
     fi
-    # Resolve the pane's directory on every refresh so pane changes are reflected.
-    current_path=$(tmux display-message -p -t "$1" '#{pane_current_path}' 2>/dev/null) || exit 0
-    [[ -n $current_path ]] && render "$current_path"
+    update "$@"
 fi

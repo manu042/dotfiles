@@ -11,6 +11,7 @@ More Cheat Sheets:
 | After Ctrl+Space | Action |
 | --- | --- |
 | `c` | New window in the active pane's working directory |
+| `t` | Popup shell in the active pane's directory; close with `exit` or `Ctrl+D` |
 | `b` | Split into left/right panes in the same directory (`split-window -h`) |
 | `Shift+b` (`B`) | Split into top/bottom panes in the same directory (`split-window -v`) |
 | Arrow keys | Move to the pane in that direction |
@@ -30,7 +31,7 @@ More Cheat Sheets:
 | `?` | Show all key bindings |
 | `Ctrl+Space` | Send a literal Ctrl+Space to the application |
 
-The default `"` and `%` split shortcuts are unbound.
+The default `"` and `%` split shortcuts are unbound. `t` replaces the default clock shortcut and opens a popup at 50% of the terminal's width and height.
 
 Windows and panes are numbered from **1**. Windows are renumbered automatically when one is closed.
 
@@ -47,11 +48,11 @@ The script reads only the current branch, without scanning the working tree for 
 Slash-separated branch prefixes are abbreviated to their initials; the final component stays intact.
 With a detached HEAD, it shows `detached:` followed by the short commit ID.
 
-The right segment adapts to each terminal's width, reserving 30 columns for window labels after the session label. When necessary, it trims Git/path text from the left with an ellipsis, keeping the clock and date visible. With less space it shows only the clock, or hides entirely.
+The right segment adapts to each terminal's width, reserving 30 columns for window labels after the session label (34 when the current window is zoomed). When necessary, it trims Git/path text from the left with an ellipsis, keeping the clock and date visible. With less space it shows only the clock, or hides entirely.
 
 `tmux.conf` invokes `status.sh` through `#(...)`, which displays the rendered Git/path segment from the script's standard output.
 
-Window labels use tmux's automatic renaming and show the current directory/app.
+Window labels use tmux's automatic renaming and show the current directory/app. Zoomed windows show `[Z]` after the name, outside its truncation limit; press **Ctrl+Space, `z`** to toggle zoom.
 
 
 ## Mouse and copying
